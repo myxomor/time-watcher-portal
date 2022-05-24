@@ -15,8 +15,8 @@
 }
 
 #container {
-  max-width: 550px
-  padding: 8px
+  //max-width: 550px
+  //padding: 8px
   display: flex
   justify-content: center
 }

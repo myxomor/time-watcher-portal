@@ -1,6 +1,6 @@
 <template>
   <div id="project">
-    <md-table v-model="projects" md-card @md-selected="onSelectProject">
+    <md-table  v-model="projects" md-card @md-selected="onSelectProject">
       <md-table-toolbar>
         <h1 class="md-title">Projects</h1>
         <md-button @click="newProject">Add</md-button>
@@ -15,7 +15,7 @@
 
     </md-table>
 
-    <md-table v-model="tasks" md-card @md-selected="onSelectTask">
+    <md-table  v-model="tasks" md-card @md-selected="onSelectTask">
       <md-table-toolbar>
         <h1 class="md-title">Tasks</h1>
         <md-button @click="newTask">Add</md-button>
@@ -29,7 +29,7 @@
       </md-table-row>
     </md-table>
 
-    <md-card id="info">
+    <md-card  id="info">
       <md-card-header>
         <div class="md-title">Details</div>
       </md-card-header>
@@ -41,6 +41,21 @@
           <p>Code: {{this.selectedElement.code}}</p>
           <p>Active status: {{this.selectedElement.activeStatus}}</p>
           <br /><md-button @click="deleteElement">Delete</md-button>
+          <md-button @click="editElement">Edit</md-button>
+        </div>
+
+        <div v-else-if="selectedElement.type === 'edit project'">
+          <md-field>
+            <label>Project name</label>
+            <md-input v-model="editedSelectedElement.name"></md-input>
+          </md-field>
+          <md-field>
+            <label>Project code</label>
+            <md-input v-model="editedSelectedElement.code"></md-input>
+          </md-field>
+          <md-switch v-model="editedSelectedElement.activeStatus">Project status</md-switch>
+          <md-button @click="cancelEdit">Cancel</md-button>
+          <md-button @click="saveEdit">Save</md-button>
         </div>
 
         <div v-else-if="selectedElement.type === 'task'">
@@ -49,6 +64,25 @@
           <p>Project name: {{this.selectedElement.project}}</p>
           <p>Active status: {{this.selectedElement.activeStatus}}</p>
           <br /><md-button @click="deleteElement">Delete</md-button>
+          <md-button @click="editElement">Edit</md-button>
+        </div>
+
+        <div v-else-if="selectedElement.type === 'edit task'">
+          <md-field>
+            <label>Task name</label>
+            <md-input v-model="editedSelectedElement.name"></md-input>
+          </md-field>
+          <md-field>
+            <label for="project">Project name</label>
+            <md-field>
+              <md-select v-model="editedSelectedElement.project" name="project" id="project">
+                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.code">{{ item.name }}</md-option>
+              </md-select>
+            </md-field>
+          </md-field>
+          <md-switch v-model="editedSelectedElement.activeStatus">Task status</md-switch>
+          <md-button @click="cancelEdit">Cancel</md-button>
+          <md-button @click="saveEdit">Save</md-button>
         </div>
 
         <div v-else-if="selectedElement.type === 'new project'">
@@ -73,7 +107,7 @@
             <label for="project">Project name</label>
             <md-field>
               <md-select v-model="newElement.project" name="project" id="project">
-                <md-option v-for="item in projects" :value="item.code">{{ item.name }}</md-option>
+                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.code">{{ item.name }}</md-option>
               </md-select>
             </md-field>
           </md-field>
@@ -81,7 +115,7 @@
           <md-button @click="addTask">Save</md-button>
         </div>
 
-        <div v-else>
+        <div v-else-if="!(selectedElement.type)">
           No information
         </div>
       </md-card-content>
@@ -97,6 +131,7 @@ export default {
   data: () => ({
     selectedProjectCode: '',
     selectedElement: {},
+    editedSelectedElement: {},
     newElement: {
       name: '',
       code: '',
@@ -114,10 +149,10 @@ export default {
   methods: {
     onSelectProject (item) {
       this.selectedProjectCode = item.code
-      this.selectedElement = item
+      this.selectedElement = {...item}
     },
     onSelectTask (item) {
-      this.selectedElement = item
+      this.selectedElement = {...item}
     },
     getClass: ({ activeStatus }) => ({
       'active': activeStatus === true,
@@ -149,6 +184,24 @@ export default {
       }
       this.selectedElement = {}
     },
+    editElement () {
+      if (this.selectedElement.type === 'project') {
+        this.editedSelectedElement = {...this.selectedElement}
+        this.selectedElement.type = 'edit project'
+      }
+      if (this.selectedElement.type === 'task') {
+        this.editedSelectedElement = {...this.selectedElement}
+        this.selectedElement.type = 'edit task'
+      }
+    },
+    cancelEdit () {
+      this.selectedElement.type = this.editedSelectedElement.type
+      this.editedSelectedElement = {}
+    },
+    saveEdit () {
+      store.dispatch('edit', this.editedSelectedElement)
+      this.cancelEdit()
+    },
     newTask () {
       this.newElement.type = 'task'
       this.newElement.project = this.selectedElement.code || this.selectedElement.project || ''
@@ -170,6 +223,12 @@ export default {
 </script>
 
 <style  scoped>
+.md-layout-item{
+  margin: 16px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
   #project {
     min-width: 500px;
   }
