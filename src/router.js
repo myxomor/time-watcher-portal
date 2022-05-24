@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ProjectsTasks from "./views/ProjectsTasks.vue";
+import ProjectsTasks from './views/ProjectsTasks.vue'
 
 Vue.use(Router)
 
@@ -14,6 +14,5 @@ const router = new Router({
     }
   ]
 })
-
 
 export default router

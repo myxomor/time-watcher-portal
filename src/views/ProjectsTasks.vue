@@ -90,10 +90,10 @@
 </template>
 
 <script>
-import store from "@/store";
+import store from '@/store'
 
 export default {
-  name: "ProjectsTasks",
+  name: 'ProjectsTasks',
   data: () => ({
     selectedProjectCode: '',
     selectedElement: {},
@@ -109,7 +109,7 @@ export default {
     },
     tasks () {
       return this.$store.state.tasks.filter(item => item.project === this.selectedProjectCode) || []
-    },
+    }
   },
   methods: {
     onSelectProject (item) {
@@ -140,11 +140,11 @@ export default {
     },
     deleteElement () {
       const element = this.selectedElement
-      if (element.type === 'project' ) {
+      if (element.type === 'project') {
         store.dispatch('deleteProject', element.code)
-        this.selectedProjectCode = ""
+        this.selectedProjectCode = ''
       }
-      if (element.type === 'task'){
+      if (element.type === 'task') {
         store.dispatch('deleteTask', element.id)
       }
       this.selectedElement = {}
@@ -164,7 +164,7 @@ export default {
         code: '',
         activeStatus: true
       }
-    },
+    }
   }
 }
 </script>

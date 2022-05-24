@@ -25,7 +25,7 @@ const state = {
       name: 'Calculator',
       code: 'F48F',
       activeStatus: true
-    },
+    }
   ],
   tasks: [
     {
@@ -55,44 +55,44 @@ const state = {
       name: 'search icon DONE',
       project: 'F25A',
       activeStatus: false
-    },
+    }
   ]
 }
 
 const mutations = {
-  addProject(state, project) {
+  addProject (state, project) {
     const newProject = {
       id: state.projects.length + 1,
       ...project
     }
     state.projects.push(newProject)
   },
-  addTask(state, task) {
+  addTask (state, task) {
     const newTask = {
       id: state.tasks.length + 1,
       ...task
     }
     state.tasks.push(newTask)
   },
-  deleteProject(state, code) {
-    state.projects.splice(state.projects.findIndex(item=>item.code===code),1)
+  deleteProject (state, code) {
+    state.projects.splice(state.projects.findIndex(item => item.code === code), 1)
   },
-  deleteTask(state, id){
-    state.tasks.splice(state.tasks.findIndex(item=>item.id===id), 1)
+  deleteTask (state, id) {
+    state.tasks.splice(state.tasks.findIndex(item => item.id === id), 1)
   }
 }
 
 const actions = {
-  addProject({commit}, project) {
+  addProject ({commit}, project) {
     commit('addProject', project)
   },
-  addTask({commit}, task) {
+  addTask ({commit}, task) {
     commit('addTask', task)
   },
-  deleteProject({commit}, code){
+  deleteProject ({commit}, code) {
     commit('deleteProject', code)
   },
-  deleteTask({commit}, id){
+  deleteTask ({commit}, id) {
     commit('deleteTask', id)
   }
 }
