@@ -3,10 +3,12 @@
     <md-table  v-model="projects" md-card @md-selected="onSelectProject">
       <md-table-toolbar>
         <h1 class="md-title">Projects</h1>
-        <md-button @click="newProject">Add</md-button>
+        <md-button @click="importProjects">Import</md-button>
+        <md-button @click="createNewProject">Add</md-button>
       </md-table-toolbar>
 
       <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single">
+        <md-table-cell md-label="Id" md-sort-by="name">{{ item.id }}</md-table-cell>
         <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
         <md-table-cell md-label="Code" md-sort-by="code" md-numeric>{{ item.code }}</md-table-cell>
         <md-table-cell md-label="Status" md-sort-by="status"  :class="getClass(item)"></md-table-cell>
@@ -18,12 +20,12 @@
     <md-table  v-model="tasks" md-card @md-selected="onSelectTask">
       <md-table-toolbar>
         <h1 class="md-title">Tasks</h1>
-        <md-button @click="newTask">Add</md-button>
+        <md-button @click="createNewTask">Add</md-button>
       </md-table-toolbar>
 
       <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single">
         <md-table-cell md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
-        <md-table-cell md-label="Project Code" md-sort-by="project-code">{{item.project}}</md-table-cell>
+        <md-table-cell md-label="Project Id" md-sort-by="project-id">{{item.projectID}}</md-table-cell>
         <md-table-cell md-label="Status" md-sort-by="status"  :class="getClass(item)"></md-table-cell>
 
       </md-table-row>
@@ -61,7 +63,7 @@
         <div v-else-if="selectedElement.type === 'task'">
           <h3>Task</h3>
           <p>Name: {{this.selectedElement.name}}</p>
-          <p>Project name: {{this.selectedElement.project}}</p>
+          <p>Project ID: {{this.selectedElement.projectID}}</p>
           <p>Active status: {{this.selectedElement.activeStatus}}</p>
           <br /><md-button @click="deleteElement">Delete</md-button>
           <md-button @click="editElement">Edit</md-button>
@@ -75,8 +77,8 @@
           <md-field>
             <label for="project">Project name</label>
             <md-field>
-              <md-select v-model="editedSelectedElement.project" name="project" id="project">
-                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.code">{{ item.name }}</md-option>
+              <md-select v-model="editedSelectedElement.projectID" name="project" id="project">
+                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.id">{{ item.name }}</md-option>
               </md-select>
             </md-field>
           </md-field>
@@ -88,30 +90,30 @@
         <div v-else-if="selectedElement.type === 'new project'">
           <md-field>
             <label>Project name</label>
-            <md-input v-model="newElement.name"></md-input>
+            <md-input v-model="newProject.name"></md-input>
           </md-field>
           <md-field>
             <label>Project code</label>
-            <md-input v-model="newElement.code"></md-input>
+            <md-input v-model="newProject.code"></md-input>
           </md-field>
-          <md-switch v-model="newElement.activeStatus">Project status</md-switch>
+          <md-switch v-model="newProject.activeStatus">Project status</md-switch>
           <md-button @click="addProject">Save</md-button>
         </div>
 
         <div v-else-if="selectedElement.type === 'new task'">
           <md-field>
             <label>Task name</label>
-            <md-input v-model="newElement.name"></md-input>
+            <md-input v-model="newTask.name"></md-input>
           </md-field>
           <md-field>
             <label for="project">Project name</label>
             <md-field>
-              <md-select v-model="newElement.project" name="project" id="project">
-                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.code">{{ item.name }}</md-option>
+              <md-select v-model="newTask.projectID" name="project" id="project">
+                <md-option v-bind:key="item.id" v-for="item in projects" :value="item.id">{{ item.name }}</md-option>
               </md-select>
             </md-field>
           </md-field>
-          <md-switch v-model="newElement.activeStatus">Task status</md-switch>
+          <md-switch v-model="newTask.activeStatus">Task status</md-switch>
           <md-button @click="addTask">Save</md-button>
         </div>
 
@@ -129,12 +131,18 @@ import store from '@/store'
 export default {
   name: 'ProjectsTasks',
   data: () => ({
-    selectedProjectCode: '',
+    selectedProjectId: '',
     selectedElement: {},
     editedSelectedElement: {},
-    newElement: {
+    newProject: {
       name: '',
       code: '',
+      activeStatus: true
+    },
+    newTask: {
+      type: '',
+      name: '',
+      projectID: '',
       activeStatus: true
     }
   }),
@@ -143,30 +151,37 @@ export default {
       return this.$store.state.projects
     },
     tasks () {
-      return this.$store.state.tasks.filter(item => item.project === this.selectedProjectCode) || []
+      // return this.$store.state.tasks.filter(item => item.project === this.selectedProjectId) || []
+      return this.$store.state.tasks || []
     }
   },
   methods: {
+    importProjects () {
+      store.dispatch('importProjects')
+    },
     onSelectProject (item) {
-      this.selectedProjectCode = item.code
+      this.selectedProjectId = item.id
+      store.dispatch('importTasks', item.id)
       this.selectedElement = {...item}
     },
     onSelectTask (item) {
       this.selectedElement = {...item}
     },
     getClass: ({ activeStatus }) => ({
-      'active': activeStatus === true,
-      'inactive': activeStatus === false
+      'active': activeStatus === 'True',
+      'inactive': activeStatus === 'False'
     }),
-    newProject () {
+    createNewProject () {
       this.selectedElement = {
         type: 'new project'
       }
-      this.newElement.type = 'project'
+      this.newProject.type = 'project'
     },
     addProject () {
-      store.dispatch('addProject', this.newElement)
-      this.newElement = {
+      store.dispatch('addProject', this.newProject).then(() => {
+        store.dispatch('importProjects')
+      })
+      this.newProject = {
         type: '',
         name: '',
         code: '',
@@ -176,11 +191,15 @@ export default {
     deleteElement () {
       const element = this.selectedElement
       if (element.type === 'project') {
-        store.dispatch('deleteProject', element.code)
-        this.selectedProjectCode = ''
+        store.dispatch('deleteProject', element.id).then(() => {
+          store.dispatch('importProjects')
+        })
+        this.selectedProjectId = ''
       }
       if (element.type === 'task') {
-        store.dispatch('deleteTask', element.id)
+        store.dispatch('deleteTask', element.id).then(() => {
+          store.dispatch('importTasks', this.selectedProjectId)
+        })
       }
       this.selectedElement = {}
     },
@@ -199,22 +218,33 @@ export default {
       this.editedSelectedElement = {}
     },
     saveEdit () {
-      store.dispatch('edit', this.editedSelectedElement)
+      if (this.selectedElement.type === 'edit project') {
+        store.dispatch('editProject', this.editedSelectedElement).then(() => {
+          store.dispatch('importProjects')
+        })
+      }
+      if (this.selectedElement.type === 'edit task') {
+        store.dispatch('editTask', this.editedSelectedElement).then(() => {
+          store.dispatch('importTasks', this.selectedProjectId)
+        })
+      }
       this.cancelEdit()
     },
-    newTask () {
-      this.newElement.type = 'task'
-      this.newElement.project = this.selectedElement.code || this.selectedElement.project || ''
+    createNewTask () {
+      this.newTask.type = 'task'
+      this.newTask.projectID = this.selectedProjectId
       this.selectedElement = {
         type: 'new task'
       }
     },
     addTask () {
-      store.dispatch('addTask', this.newElement)
-      this.newElement = {
+      store.dispatch('addTask', this.newTask).then(() => {
+        store.dispatch('importTasks', this.selectedProjectId)
+      })
+      this.newTask = {
         type: '',
         name: '',
-        code: '',
+        projectID: '',
         activeStatus: true
       }
     }
