@@ -11,21 +11,26 @@ cd time-watcher-portal
 ```
 
 ### Install dependencies
+Install frontend dependencies
 ```
 npm install
 ```
+Install backend dependencies
+```
+cd BE
+python -m venv venv 
+./venv\Scripts\activate.bat
+pip -m install -r requirements.txt
+```
 
 ### Compiles and hot-reloads for development
+Start frontend
 ```
 npm run serve
 ```
-
-### Compiles and minifies for production
+Start backend
 ```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
+cd BE
+./venv\Scripts\activate.bat
+python app.py
 ```
