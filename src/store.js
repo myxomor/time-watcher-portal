@@ -5,59 +5,9 @@ import axios from 'axios'
 Vue.use(Vuex)
 
 const state = {
-  projects: [
-    {
-      id: 1,
-      type: 'project',
-      name: 'ToDo',
-      code: 'F25A',
-      activeStatus: true
-    },
-    {
-      id: 2,
-      type: 'project',
-      name: 'WebUsb',
-      code: 'F93C',
-      activeStatus: false
-    },
-    {
-      id: 3,
-      type: 'project',
-      name: 'Calculator',
-      code: 'F48F',
-      activeStatus: true
-    }
-  ],
-  tasks: [
-    {
-      id: 1,
-      type: 'task',
-      name: 'make reb button START',
-      project: 'F93C',
-      activeStatus: true
-    },
-    {
-      id: 2,
-      type: 'task',
-      name: 'make grey button CANCEL',
-      project: 'F93C',
-      activeStatus: true
-    },
-    {
-      id: 3,
-      type: 'task',
-      name: 'make display',
-      project: 'F48F',
-      activeStatus: true
-    },
-    {
-      id: 4,
-      type: 'task',
-      name: 'search icon DONE',
-      project: 'F25A',
-      activeStatus: false
-    }
-  ]
+  projects: [],
+  tasks: [],
+  works: []
 }
 
 const mutations = {
@@ -70,6 +20,11 @@ const mutations = {
     let tasksImport = {}
     tasksImport = tasks.map(item => { return {...item, type: 'task'} })
     state.tasks = tasksImport
+  },
+  importWorksAll (state, works) {
+    let worksImport = {}
+    worksImport = works.map(item => { return {...item, type: 'work'} })
+    state.works = worksImport
   }
 }
 
@@ -112,6 +67,21 @@ const actions = {
   editTask ({commit}, task) {
     return axios
       .put('http://localhost:5000/tasks/0', task)
+      .then()
+  },
+  importWorksAll ({commit}) {
+    axios
+      .get('http://localhost:5000/works/0')
+      .then(response => (commit('importWorksAll', response.data)))
+  },
+  addWork ({commit}, work) {
+    return axios
+      .post('http://localhost:5000/works/0', work)
+      .then()
+  },
+  deleteWork ({commit}, id) {
+    return axios
+      .delete('http://localhost:5000/works/' + id)
       .then()
   }
 }

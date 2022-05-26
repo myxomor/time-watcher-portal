@@ -44,7 +44,7 @@ class Task(db.Model):
 
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.String(10), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     taskID = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
@@ -116,6 +116,31 @@ def tasks(id):
         db.session.add(task)
         db.session.commit()
         return "OK"
+@app.route('/works/<int:id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def works(id):
+    if request.method == 'GET':
+        works = Work.query.all()
+        list_works = []
+        for work in works:
+            list_works.append(row2dict(work))
+        json_object = json.dumps(list_works, indent = 4) 
+        return json_object
+    if request.method == 'POST':
+        new_work = json.loads(request.data)
+        print(new_work)
+        work = Work(name=new_work["name"], date=new_work["date"], duration=new_work["duration"], taskID=new_work["taskID"])
+        db.session.add(work)
+        db.session.commit()
+        return "OK"
+    if request.method == 'DELETE':
+        print(id)
+        work = Work.query.get_or_404(id)
+        db.session.delete(work)
+        db.session.commit()
+        return "OK"
 
+work = Work(date="2022-01-25", duration=2, name="create repo", taskID=15)
+db.session.add(work)
+db.session.commit()
 
 app.run()
